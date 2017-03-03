@@ -5,3 +5,5 @@ This will also run on the Pi cluster for lolz.
 
 
 http://caza.la/synaptic/
+
+* npm install synaptic --save
