@@ -1,0 +1,27 @@
+{
+  "name": "inifinity-synaptic",
+  "version": "1.0.0",
+  "description": "An AI platform for general usage on webpages, video games, and various apps.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RubenTipparach/Infinity-Synaptic.git"
+  },
+  "keywords": [
+    "AI",
+    "Singularity",
+    "VideoGames"
+  ],
+  "author": "Ruben Tipparach",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RubenTipparach/Infinity-Synaptic/issues"
+  },
+  "homepage": "https://github.com/RubenTipparach/Infinity-Synaptic#readme",
+  "dependencies": {
+    "synaptic": "^1.0.8"
+  }
+}
