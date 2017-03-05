@@ -48,4 +48,12 @@ console.log(myPerceptron.activate([0,1])[0].toFixed(3)); // 0.9831714267395621
 console.log(myPerceptron.activate([1,1])[0].toFixed(3)); // 0.02128894618097928
 
 
+
+
+var synaptic = require('synaptic');
+this.network = new synaptic.Architect.Perceptron(40, 25, 3);
+
+
+
+
 server.listen(3000);
