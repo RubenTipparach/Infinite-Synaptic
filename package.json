@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/RubenTipparach/Infinity-Synaptic#readme",
   "dependencies": {
+    "read-csv-json": "^1.1.0",
+    "strformat": "0.0.7",
     "synaptic": "^1.0.8"
   }
 }
