@@ -3,9 +3,15 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 var clientServer = require('socket.io-client');
-var sim = require('./sim.js');
 var synaptic = require('synaptic'); // this line is not needed in the browser
 var csvModule = require("read-csv-json"); // using this to gather data from Dr. Ludwig's sample sets
+//var numjs = require('numjs');
+var math = require('mathjs'); //http://mathjs.org/docs/reference/
+
+/*****************************/
+/* Custom modular JS section */
+/*****************************/
+var sim = require('./sim.js');
 
 /****************************************************************************/
 /* This section is just for logging fun nonsense .. *<:)                    */
@@ -152,13 +158,37 @@ var fieldsName = ["sepal_l","sepal_w","petal_l","petal_w", "species"];
 var csvRead = new csvModule(_filePath, fieldsName);
 
 
-csvRead.getCSVJson().then(
-    (result) =>
-    {
+csvRead.getCSVJson().then((result) =>
+{
+    try {
+        result.splice(0,1);
+
+        for (var item in result) {
+            item.sepal_l = parseFloat(item.sepal_l);
+            item.sepal_w = parseFloat(item.sepal_l);
+            item.petal_l = parseFloat(item.petal_l);
+            item.petal_w = parseFloat(item.petal_w);
+        }
+
         //console.log('result: ', JSON.stringify(result));
         var trainingSet = [];
 
-        for(var i = 1; i < result.length; i++)
+        let flowerMean = {
+            sepal_l: getMean("sepal_l", result),
+            sepal_w: getMean("sepal_w", result),
+            petal_l: getMean("petal_l", result),
+            petal_w: getMean("petal_w", result),
+        };
+
+        // lol
+        let flowerStd = {
+            sepal_l: getStd("sepal_l", result),
+            sepal_w: getStd("sepal_w", result),
+            petal_l: getStd("petal_l", result),
+            petal_w: getStd("petal_w", result),
+        };
+
+        for(var i = 0; i < result.length; i++)
         {
              var item = result[i];
 
@@ -170,24 +200,58 @@ csvRead.getCSVJson().then(
 
              // TODO: Normalize inputs.
              var traininItem = {
-                 input: [parseFloat(item.sepal_l), parseFloat(item.sepal_w), parseFloat(item.sepal_w), parseFloat(item.sepal_l)],
+                 input: [
+                     getZScore(item.sepal_l, flowerMean.sepal_l, flowerStd.sepal_l),
+                     getZScore(item.sepal_w, flowerMean.sepal_w, flowerStd.sepal_w),
+                     getZScore(item.petal_l, flowerMean.petal_l, flowerStd.petal_l),
+                     getZScore(item.petal_w, flowerMean.petal_w, flowerStd.petal_w)
+                 ],
                  output: encodeOutput[item.species]
              };
 
              trainingSet.push(traininItem);
              //console.log('result: ', JSON.stringify(result[i]));
-        }
+         }
+    } catch (e) {
+     synLogger.error(e);
+    }
 
-        //console.log('result: ', trainingSet);
+    //console.log('result: ', trainingSet);
+    run(trainingSet);
+},
+(err) =>
+{
+    console.log('err: ', err)
+});
 
-        run(trainingSet);
-    },
-    (err) =>
+//normalization!
+function getZScore(value,mean,std)
+{
+    return (value - mean)/std;
+}
+function getMean(colname, dataset)
+{
+    var vals = [];
+
+    for(var i = 0; i < dataset.length; i++)
     {
-        console.log('err: ', err)
-    });
+        vals.push(dataset[i][colname]);
+    }
 
-//sim();
+    return math.mean(vals);
+}
+function getStd(colname, dataset)
+{
+    var vals = [];
+
+    for(var i = 0; i < dataset.length; i++)
+    {
+        vals.push(dataset[i][colname]);
+    }
+
+    return math.std(vals);
+}
+
 
 function run(trainingSet)
 {
