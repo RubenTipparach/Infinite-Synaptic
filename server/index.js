@@ -151,6 +151,7 @@ synLogger.warn(myPerceptron.activate([0,0,1]));
 
 
 
+// TODO: This thing needs Cross Validation, Training and Testing set split, still has a long ass way to go!
 /* IRIS DATA SET */
 var _filePath = './data/iris.csv';
 var fieldsName = ["sepal_l","sepal_w","petal_l","petal_w", "species"];
