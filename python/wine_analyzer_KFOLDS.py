@@ -23,10 +23,10 @@ from sklearn.model_selection import KFold
 import matplotlib.pyplot as plt
 import shutil
 # Summary:
-#   Idk what this does.
+#   Encodes the columns.
 # Parameters:
 #   df - the dataframe
-#   name - the name    
+#   name - the name
 def encode_text_index(df,name):
     le = preprocessing.LabelEncoder()
     df[name] = le.fit_transform(df[name])
@@ -49,7 +49,7 @@ def encode_numeric_zscore(df,name,mean=None,sd=None):
     df[name] = (df[name]-mean)/sd
 
 # Summary:
-#   Does something with x and y.
+#   Transforms the data into training sets - input/output.
 # Parameters:
 #   df - the dataframe
 #   name - the name
@@ -61,7 +61,7 @@ def to_xy(df,target):
 
     target_type = df[target].dtypes
     target_type = target_type[0] if hasattr(target_type, '__iter__') else target_type
-    
+
     if target_type in (np.int64, np.int32):
         return df.as_matrix(result).astype(np.float32),df.as_matrix([target]).astype(np.int32)
     else:
@@ -85,7 +85,7 @@ def plot_confusion_matrix(cm, names, title='Confusion matrix', cmap=plt.cm.Blues
     plt.xlabel('Predicted label')
 
 #options
-tf.logging.set_verbosity(tf.logging.ERROR)        
+tf.logging.set_verbosity(tf.logging.ERROR)
 pd.options.display.encoding = 'utf-8'
 
 
@@ -122,10 +122,10 @@ x, y = to_xy(df,'class')
 
 
 # The standard training set.
-x_train, x_test, y_train, y_test = train_test_split(    
+x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.25)#, random_state=45) #<---- Can modify the seed here whenever
 
-model_dir = 'tmp/wine' 
+model_dir = 'tmp/wine'
 
 feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0])]
 
@@ -136,8 +136,8 @@ classifier = learn.DNNClassifier(
      model_dir= model_dir,
      hidden_units=[20, 10, 5],
      n_classes=num_classes,
-     feature_columns=feature_columns) 
-    
+     feature_columns=feature_columns)
+
 
 validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
     x_test,
@@ -146,14 +146,14 @@ validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
     early_stopping_metric="loss",
     early_stopping_metric_minimize=True,
     early_stopping_rounds=50)
-    
+
 classifier.fit(x_train, y_train,monitors=[validation_monitor],steps=10000)
 
 ###############################################
- 
+
 pred = list(classifier.predict(x_test, as_iterable=True))
 score = metrics.accuracy_score(y_test, pred)
-print("Accuarcy before save: {}".format(score))    
+print("Accuarcy before save: {}".format(score))
 
 cm = confusion_matrix(y_test, pred)
 np.set_printoptions(precision=2)
@@ -163,10 +163,10 @@ plt.figure()
 plot_confusion_matrix(cm, classOfWine)
 plt.show()
 
-   
+
 pred = list(classifier.predict(x_test, as_iterable=True))
 score = metrics.accuracy_score(y_test, pred)
-print("Accuarcy before save: {}".format(score))    
+print("Accuarcy before save: {}".format(score))
 
 ###############################################
 
@@ -189,26 +189,26 @@ print("Log loss score: {}".format(score))
 # K-Fold Section
 
 kf = KFold(5)
-    
+
 all_y_test = []
 all_y_pred = []
 fold = 0
 
 shutil.rmtree('tmp', ignore_errors=True)
 
-for train, test in kf.split(x):        
+for train, test in kf.split(x):
     fold+=1
     print("Fold #{}".format(fold))
-        
+
     x_train = x[train]
     y_train = y[train]
     x_test = x[test]
     y_test = y[test]
-    
+
     model_dir = 'tmp/wine' + str(fold)
 
     feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0])]
-    
+
     opt = tf.train.AdagradOptimizer(learning_rate=0.1)
     classifier = learn.DNNClassifier(
          optimizer=opt,
@@ -224,36 +224,36 @@ for train, test in kf.split(x):
         early_stopping_metric="loss",
         early_stopping_metric_minimize=True,
         early_stopping_rounds=50)
-    
+
     classifier.fit(x, y, steps=1000)
 
-    
+
     pred = list(classifier.predict(x_test, as_iterable=True))
 
-    
+
     ###############################################
     ''' disabled due to error in the folds.
     tf.logging.set_verbosity(tf.logging.ERROR)
-    
+
     np.set_printoptions(precision=4)
     np.set_printoptions(suppress=True)
-    
+
     pred = list(classifier.predict_proba(x_test, as_iterable=True))
-    
+
     print("As percent probability")
     print(pred[0]*100)
-    
+
     print("Numpy array of predictions")
     display(pred[0:5])
-    
+
     score = metrics.log_loss(y_test, pred)
     print("Log loss score: {}".format(score))
-    ''' 
-  
+    '''
+
     ###############################################
-    
+
     all_y_test.append(y_test)
-    all_y_pred.append(pred)      
+    all_y_pred.append(pred)
     score = np.sqrt(metrics.accuracy_score(pred,y_test))
     print("Fold score (Accuracy): {}".format(score))
 
@@ -263,5 +263,4 @@ all_y_test = np.concatenate(all_y_test)
 all_y_pred = np.concatenate(all_y_pred)
 score = np.sqrt(metrics.accuracy_score(all_y_pred,all_y_test))
 print()
-print("Cross-validated score (Accuracy): {}".format(score))    
-
+print("Cross-validated score (Accuracy): {}".format(score))
