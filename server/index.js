@@ -152,7 +152,7 @@ synLogger.warn(myPerceptron.activate([0,0,1]));
 
 
 /* IRIS DATA SET */
-var _filePath = './iris.csv';
+var _filePath = './data/iris.csv';
 var fieldsName = ["sepal_l","sepal_w","petal_l","petal_w", "species"];
 
 var csvRead = new csvModule(_filePath, fieldsName);
