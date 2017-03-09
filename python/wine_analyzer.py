@@ -159,6 +159,28 @@ plt.figure()
 plot_confusion_matrix(cm, classOfWine)
 plt.show()
 
+   
+pred = list(classifier.predict(x_test, as_iterable=True))
+score = metrics.accuracy_score(y_test, pred)
+print("Accuarcy before save: {}".format(score))    
+
+###############################################
+
+tf.logging.set_verbosity(tf.logging.ERROR)
+
+np.set_printoptions(precision=4)
+np.set_printoptions(suppress=True)
+
+pred = list(classifier.predict_proba(x_test, as_iterable=True))
+
+print("As percent probability")
+print(pred[0]*100)
+
+print("Numpy array of predictions")
+display(pred[0:5])
+
+score = metrics.log_loss(y_test, pred)
+print("Log loss score: {}".format(score))
 
 ########################################################################
 
