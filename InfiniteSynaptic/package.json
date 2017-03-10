@@ -1,0 +1,17 @@
+{
+  "name": "infinite-synaptic",
+  "version": "0.0.0",
+  "description": "InfiniteSynaptic",
+  "main": "app.js",
+  "author": {
+    "name": "Ruben"
+  },
+  "dependencies": {
+    "colors": "^1.1.2",
+    "express": "^4.15.2",
+    "mathjs": "^3.10.0",
+    "socket.io": "^1.7.3",
+    "synaptic": "^1.0.8",
+    "winston": "^2.3.1"
+  }
+}
