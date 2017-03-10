@@ -1,4 +1,4 @@
-'use strict';
+//'use strict'; <-- prevents unsafe action, but also breaks my code lols!
 
 var app = require('express')();
 var server = require('http').createServer(app);
@@ -107,7 +107,7 @@ var myPerceptron = new Perceptron(2,3,1);
 var myTrainer = new Trainer(myPerceptron);
 //
 
-synLogger.info('Training XOR...');
+synLogger.info('Training XOR...'.rainbow);
 myTrainer.XOR(); // { error: 0.004998819355993572, iterations: 21871, time: 356 }
 
 synLogger.info(myPerceptron.activate([0,0])[0].toFixed(3)); // 0.0268581547421616
@@ -149,7 +149,7 @@ trainerOne.train(trainingSetOne);
 synLogger.warn(myPerceptron.activate([0,0,1]));
 synLogger.warn(myPerceptron.activate([0,1,0]));
 synLogger.warn(myPerceptron.activate([1,1,1]));
-synLogger.warn(myPerceptron.activate([0,0,1]));
+synLogger.warn(myPerceptron.activate([0, 0, 1]));
 
 
 
