@@ -1,9 +1,7 @@
 //'use strict'; <-- prevents unsafe action, but also breaks my code lols!
 let app = require('express')();
-let server = require('http').createServer(app);
-let io = require('socket.io')(server);
-let fs = require('fs');
-let clientServer = require('socket.io-client');
+let server = require('http').Server(app);
+var io = require('socket.io')(server);
 let colors = require('colors');
 let synLogger = require('./logger.js');
 let strformat = require('strformat');
@@ -13,22 +11,31 @@ synLogger.info('Initializing...');
 
 // for loading arguments.
 process.argv.forEach((val, index, array) => {
-    let text = index + ': ' + val;
-    synLogger.info(text.magenta);
+
+    synLogger.info(' ' + index.toString().blue.bold.bgWhite + ': ' + val.yellow);
+
     try {
-        if (val == "xor") {
+
+        // usage: -xor -sandbox -iris
+        if (val == "-xor") {
             let xor = require('./neurons/basic-xor.js');
             xor();
         }
 
-        if (val == "sandbox") {
+        if (val == "-sandbox") {
             let sandbox = require('./neurons/sandbox-neuron.js');
             sandbox();
         }
 
-        if (val == "iris") {
+        if (val == "-iris") {
             let iris = require('./neurons/iris-classifier.js');
             iris();
+        }
+
+        // usage: -unity
+        if (val == "-unityserver")
+        {
+
         }
     }
     catch (e)
@@ -38,3 +45,12 @@ process.argv.forEach((val, index, array) => {
 });
 
 server.listen(3000);
+
+//Socket for the unity server.
+try {
+    let unityServer = require('./unity/unity-server.js');
+    unityServer(io);
+}
+catch (e) {
+    synLogger.error(e);
+}

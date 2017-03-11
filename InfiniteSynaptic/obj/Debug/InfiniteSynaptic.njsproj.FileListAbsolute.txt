@@ -1,0 +1,2 @@
+C:\wamp64\www\Infinity-Synaptic\InfiniteSynaptic\obj\Debug\InfiniteSynaptic.njsprojResolveAssemblyReference.cache
+C:\wamp64\www\Infinity-Synaptic\InfiniteSynaptic\bin\Microsoft.NodejsTools.WebRole.dll

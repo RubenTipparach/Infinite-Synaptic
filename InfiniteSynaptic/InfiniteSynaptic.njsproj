@@ -4,7 +4,8 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>InfiniteSynaptic</Name>
     <RootNamespace>InfiniteSynaptic</RootNamespace>
-    <ScriptArguments>xor sandbox iris</ScriptArguments>
+    <ScriptArguments>
+    </ScriptArguments>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -43,6 +44,12 @@
     <Compile Include="neuron-math.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="unity\fh-taccom.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="unity\unity-server.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Content Include="data\auto-mpg-out-of-sample.csv" />
     <Content Include="data\auto-mpg-shuffle.csv" />
     <Content Include="data\auto-mpg.csv" />
@@ -57,6 +64,7 @@
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="neurons\" />
+    <Folder Include="unity\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
