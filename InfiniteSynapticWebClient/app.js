@@ -10,7 +10,9 @@ var SimpleGame = (function () {
         this.game.input.mouse.capture = true;
     }
     SimpleGame.prototype.preload = function () {
-        this.game.load.image('logo', 'phaser2.png');
+        this.game.load.image('logo', 'assets/images/phaser2.png');
+        this.game.load.image('R1-Fighter', 'assets/images/R1-Fighter.png');
+        this.game.load.image('R2-Frigate', 'assets/images/phaser2.png');
     };
     SimpleGame.prototype.create = function () {
         //var logo = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'logo');
@@ -25,6 +27,9 @@ var SimpleGame = (function () {
         this.game.debug.text("Right Button: " + pointer.rightButton.isDown, 300, 260);
         this.game.debug.text("x: " + pointer.x, 300, 300);
         this.game.debug.text("y: " + pointer.y, 300, 315);
+        if (pointer.leftButton.isDown) {
+            var ship = this.game.add.sprite(pointer.x, pointer.y, 'R1-Fighter');
+        }
     };
     SimpleGame.prototype.update = function () {
     };
@@ -33,4 +38,3 @@ var SimpleGame = (function () {
 window.onload = function () {
     var game = new SimpleGame();
 };
-//# sourceMappingURL=app.js.map

@@ -18,7 +18,9 @@ class SimpleGame {
 
 
     preload() {
-        this.game.load.image('logo', 'phaser2.png');
+        this.game.load.image('logo', 'assets/images/phaser2.png');
+        this.game.load.image('R1-Fighter', 'assets/images/R1-Fighter.png');
+        this.game.load.image('R2-Frigate', 'assets/images/phaser2.png');
     }
 
     create() {
@@ -26,6 +28,8 @@ class SimpleGame {
         //logo.anchor.setTo(0.5, 0.5);
         //logo.scale.setTo(0.2, 0.2);
         //this.game.add.tween(logo.scale).to({ x: 1, y: 1 }, 2000, Phaser.Easing.Bounce.Out, true);
+
+
     }
 
     render() {
@@ -38,6 +42,11 @@ class SimpleGame {
 
         this.game.debug.text("x: " + pointer.x, 300, 300);
         this.game.debug.text("y: " + pointer.y, 300, 315);
+
+        if (pointer.leftButton.isDown)
+        {
+            var ship = this.game.add.sprite(pointer.x, pointer.y, 'R1-Fighter');
+        }
     }
 
     update() {

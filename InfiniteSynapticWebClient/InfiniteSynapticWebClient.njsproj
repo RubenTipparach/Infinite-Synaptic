@@ -31,6 +31,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="assets\images\ship_sprites.png" />
     <TypeScriptCompile Include="app.ts" />
     <Content Include="app.css">
       <SubType>Code</SubType>
@@ -39,7 +40,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="package.json" />
-    <Content Include="phaser2.png" />
+    <Content Include="assets\images\phaser2.png" />
+    <Content Include="assets\images\R1-Fighter.png" />
+    <Content Include="assets\images\R1-Frigate.png" />
     <Content Include="README.md" />
     <TypeScriptCompile Include="p2.d.ts" />
     <TypeScriptCompile Include="phaser.d.ts" />
@@ -47,6 +50,8 @@
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="assets\" />
+    <Folder Include="assets\images\" />
     <Folder Include="Scripts\" />
     <Folder Include="Scripts\typings\" />
     <Folder Include="Scripts\typings\node\" />
