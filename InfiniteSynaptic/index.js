@@ -1,10 +1,14 @@
 //'use strict'; <-- prevents unsafe action, but also breaks my code lols!
 let app = require('express')();
 let server = require('http').Server(app);
+//let server = require('http').createServer();
 var io = require('socket.io')(server);
 let colors = require('colors');
 let synLogger = require('./logger.js');
 let strformat = require('strformat');
+
+io.set('heartbeat timeout', 4000);
+io.set('heartbeat interval', 2000);
 
 var fs = require("fs");
 var serverConfig = JSON.parse(fs.readFileSync("server-config.json"));

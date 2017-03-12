@@ -7,6 +7,14 @@
     "name": "Ruben"
   },
   "dependencies": {
+    "@types/socket.io": "^1.4.28",
+    "@types/socket.io-client": "^1.4.29",
+    "gulp": "^3.9.1",
     "phaser-ce": "^2.7.3"
+  },
+  "devDependencies": {
+    "browserify": "^14.1.0",
+    "tsify": "^3.0.1",
+    "vinyl-source-stream": "^1.1.0"
   }
 }

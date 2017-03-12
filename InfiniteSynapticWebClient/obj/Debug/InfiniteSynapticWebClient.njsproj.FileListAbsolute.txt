@@ -1,0 +1,1 @@
+C:\wamp64\www\Infinity-Synaptic\InfiniteSynapticWebClient\obj\Debug\InfiniteSynapticWebClient.njsprojResolveAssemblyReference.cache

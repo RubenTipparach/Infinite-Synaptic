@@ -40,6 +40,7 @@ module.exports = (io, game) => {
 
         // sends a message to the client.
         socket.emit("intialize", {
+            data:"test package from server"
             //normally add data here.
         });
 
@@ -59,13 +60,29 @@ module.exports = (io, game) => {
         });
 
         socket.on('register-unity-client', (uClient) => {
-            clients.push(socket);
-            connections.unityClients.push(socket);
+
+            try {
+                synLogger.debug("server id: " + uClient.serverId);
+                synLogger.debug("socket id: " + socket.id);
+                clients.push(socket);
+                connections.unityClients.push(socket);
+            }
+            catch (e) {
+                synLogger.error(e);
+            }
         });
 
         socket.on('register-web-client', (wClient) => {
-            clients.push(socket);
-            connections.webClients.push(socket);
+
+            try {
+                synLogger.debug("server id: " + wClient.serverId);
+                synLogger.debug("socket id: " + socket.id);
+                clients.push(socket);
+                connections.webClients.push(socket);
+            }
+            catch (e) {
+                synLogger.error(e);
+            }
         });
 
         // disconnection procedure.
@@ -79,15 +96,24 @@ module.exports = (io, game) => {
 function onDisconnect(socket)
 {
     try {
+
+        let boolKnownDisconnect = false;
+
         let i = clients.indexOf(socket);
         clients.splice(i, 1);
 
         for (let index in connections) {
             let j = connections[index].indexOf(socket);
             if (j != -1) {
-                synLogger.warn(index.red.bold + "has disconnected");
+                synLogger.warn(index.red.bold + " has disconnected");
                 connections[index].splice(j, 1);
+                boolKnownDisconnect = true;
             }
+        }
+
+        if (!boolKnownDisconnect)
+        {
+            synLogger.warn("unkown user".red.bold + " has disconnected");
         }
     }
     catch (e) {
