@@ -1,0 +1,12 @@
+{
+  "name": "infinite-synaptic-web-client",
+  "version": "0.0.0",
+  "description": "InfiniteSynapticWebClient",
+  "main": "app.js",
+  "author": {
+    "name": "Ruben"
+  },
+  "dependencies": {
+    "phaser-ce": "^2.7.3"
+  }
+}
