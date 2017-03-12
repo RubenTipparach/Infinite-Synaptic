@@ -59,7 +59,9 @@
     <Content Include="data\wine.csv" />
     <Content Include="neurons\general-classifier.js" />
     <Content Include="package.json" />
-    <Content Include="README.md" />
+    <Content Include="server-config.json">
+      <SubType>Code</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="data\" />

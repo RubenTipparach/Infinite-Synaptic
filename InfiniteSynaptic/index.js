@@ -6,6 +6,9 @@ let colors = require('colors');
 let synLogger = require('./logger.js');
 let strformat = require('strformat');
 
+var fs = require("fs");
+var serverConfig = JSON.parse(fs.readFileSync("server-config.json"));
+
 synLogger.level = 'error';
 synLogger.info('Initializing...');
 
@@ -31,12 +34,6 @@ process.argv.forEach((val, index, array) => {
             let iris = require('./neurons/iris-classifier.js');
             iris();
         }
-
-        // usage: -unity
-        if (val == "-unityserver")
-        {
-
-        }
     }
     catch (e)
     {
@@ -44,13 +41,14 @@ process.argv.forEach((val, index, array) => {
     }
 });
 
-server.listen(3000);
 
 //Socket for the unity server.
 try {
     let unityServer = require('./unity/unity-server.js');
-    unityServer(io);
+    unityServer(io, serverConfig.gameType);
 }
 catch (e) {
     synLogger.error(e);
 }
+
+server.listen(3000);
