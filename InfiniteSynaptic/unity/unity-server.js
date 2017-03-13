@@ -20,6 +20,12 @@ let connections = {
 
 let unityGame;
 
+/*
+ * summary:
+ *  This module will handle all the game connection protocols for this server.
+ *  This can be used for various game modules besides taccom.
+ *  Eventually, this will be availible to twitch streamers to play as well.
+ */
 module.exports = (io, game) => {
 
     // choose what kind of server to "instantiate..."
@@ -33,66 +39,77 @@ module.exports = (io, game) => {
 
     // socket initialization code for server <-> server.
     io.sockets.on('connection', (socket) => {
+        try {
+            clients.push(socket);
+            unityGame.initializeEvents(socket);
 
-        clients.push(socket);
+            synLogger.info("A client has connected...".yellow.bold);
 
-        synLogger.info("A client has connected...".yellow.bold);
+            // sends a message to the client.
+            socket.emit("intialize", {
+                data: "test package from server"
+                //normally add data here.
+            });
 
-        // sends a message to the client.
-        socket.emit("intialize", {
-            data:"test package from server"
-            //normally add data here.
-        });
+            socket.on('register-unity-server', (uServer) => {
+                // should only allow one, or will spawn instances of socket.io
+                registerConnection(socket, uServer, 'unityServer');
+                unityGame.initializeServerSocket(socket);
+            });
 
-        socket.on('register-unity-server', (uServer) => {
+            socket.on('register-unity-client', (uClient) => {
+                registerConnection(socket, uClient, 'unityClients');
+            });
 
-            try
-            {
-                synLogger.debug("server id: " + uServer.serverId);
-                synLogger.debug("socket id: " + socket.id);
-                clients.push(socket);
-                connections.unityServer.push(socket);
-            }
-            catch (e)
-            {
-                synLogger.error(e);
-            }
-        });
+            socket.on('register-web-client', (wClient) => {
+                registerConnection(socket, wClient, 'webClients');
+            });
 
-        socket.on('register-unity-client', (uClient) => {
-
-            try {
-                synLogger.debug("server id: " + uClient.serverId);
-                synLogger.debug("socket id: " + socket.id);
-                clients.push(socket);
-                connections.unityClients.push(socket);
-            }
-            catch (e) {
-                synLogger.error(e);
-            }
-        });
-
-        socket.on('register-web-client', (wClient) => {
-
-            try {
-                synLogger.debug("server id: " + wClient.serverId);
-                synLogger.debug("socket id: " + socket.id);
-                clients.push(socket);
-                connections.webClients.push(socket);
-            }
-            catch (e) {
-                synLogger.error(e);
-            }
-        });
-
-        // disconnection procedure.
-        socket.on('disconnect', () => {
-            onDisconnect(socket)
-        });
+            // disconnection procedure.
+            socket.on('disconnect', () => {
+                onDisconnect(socket)
+            });
+        }
+          catch (e) {
+            synLogger.error(e);
+        }
     });
 };
 
+/*
+ * summary:
+ *  Handles the registration of incomming connections.
+ *      Connections fall into 3 categories:
+ *      1. Unity game server
+ *      2. Unity game client (android, ios, pc, mac, linux etc...)
+ *      3. Web Client - light weight HTML interface. Can be used for ship UI as well.
+ * parameters:
+ *  socket - the socket that will trigger events on the server/clients.
+ *  client - The client data package. Can include a number of things, its pretty simple right now.
+ *  connectionType - connection type string index.
+ */
+function registerConnection(socket, client, connectionType)
+{
+    try {
+        synLogger.debug("server id: " + client.serverId + " room: " + connectionType);
+        synLogger.debug("socket id: " + socket.id);
+        clients.push(socket);
+        connections[connectionType].push(socket);
 
+        // represents the different types of socket conenctions.
+       // socket.join(connectionType);
+    }
+    catch (e) {
+        synLogger.error(e);
+    }
+}
+
+/*
+ * summary:
+ *  Handles the disconnection of clients/servers
+ * parameters:
+ *  socket - the socket; its reference will be used to splice from the arrays.
+ */
 function onDisconnect(socket)
 {
     try {

@@ -2,6 +2,7 @@
 /// <reference path="phaser.d.ts"/>
 // <reference path="socket.d.ts"/>
 var sio = require("socket.io-client");
+var socket = sio.connect('localhost:3000');
 var SimpleGame = (function () {
     function SimpleGame() {
         this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {
@@ -10,11 +11,9 @@ var SimpleGame = (function () {
             render: this.render,
             update: this.update
         });
-        this.socket = sio.connect('localhost:3000');
-        this.socket.on('intialize', function (data) {
+        socket.on('intialize', function (data) {
             console.log("recieved: " + data.data);
         });
-        this.socket.emit('register-web-client', { serverId: "ruben's web client" });
         //this.game.input.mouse.capture = true;
     }
     SimpleGame.prototype.preload = function () {
@@ -28,10 +27,20 @@ var SimpleGame = (function () {
         this.spawner = this.spawnGroup.create(0, 0, 'rectangle');
         this.spawner.inputEnabled = true;
         this.spawner.input.enableDrag();
+        var sockholder = { socket: this.socket };
         this.spawner.events.onDragStart.add(function () {
             console.log("fired input");
             var pointer = _this.game.input.activePointer;
-            var ship = _this.game.add.sprite(pointer.x, pointer.y, 'R1-Fighter');
+            var x = pointer.x - 12;
+            var y = pointer.y - 22;
+            var ship = _this.game.add.sprite(x, y, 'R1-Fighter');
+            socket.emit('register-web-client', { serverId: "ruben's web client" });
+            socket.emit('spawn-ship', {
+                position: {
+                    x: x,
+                    y: y
+                }
+            });
         }, this);
     };
     SimpleGame.prototype.render = function () {

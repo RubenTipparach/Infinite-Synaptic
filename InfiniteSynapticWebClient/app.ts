@@ -2,6 +2,9 @@
 // <reference path="socket.d.ts"/>
 import * as sio from 'socket.io-client';
 
+
+let socket = sio.connect('localhost:3000');
+
 class SimpleGame {
 
     game: Phaser.Game;
@@ -21,14 +24,14 @@ class SimpleGame {
             });
 
 
-        this.socket = sio.connect('localhost:3000');
-        this.socket.on('intialize', (data) => {
+
+        socket.on('intialize', (data) => {
             console.log("recieved: " + data.data);
+            
         });
 
-        this.socket.emit('register-web-client', { serverId: "ruben's web client" });
+
         //this.game.input.mouse.capture = true;
-        
     }
 
 
@@ -45,12 +48,29 @@ class SimpleGame {
 
         this.spawner.inputEnabled = true;
         this.spawner.input.enableDrag();
+
+        let sockholder = { socket: this.socket };
+
+
         this.spawner.events.onDragStart.add(() => {
             console.log("fired input");
             let pointer = this.game.input.activePointer;
-            var ship = this.game.add.sprite(pointer.x, pointer.y, 'R1-Fighter');
+
+            let x = pointer.x - 12;
+            let y = pointer.y - 22;
+
+            let ship = this.game.add.sprite(x, y, 'R1-Fighter');
+
+            socket.emit('register-web-client', { serverId: "ruben's web client" });
+            socket.emit('spawn-ship', {
+                position: {
+                    x: x,
+                    y: y
+                }
+            });
         }, this);
     }
+
 
     render() {
 

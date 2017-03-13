@@ -26,16 +26,26 @@ module.exports = class FHTaccom
     {
         this.connections = connections;
         this.ships = [];
-        this.socket = socket;
 
         synLogger.debug('FH-TACCOM Initializing...');
+
     }
 
-    intializeEvents()
+    initializeEvents(socket)
     {
-        socket.on('spawn-ship', (shipRequest) => {
-            this.spawnShip(shipRequest);
+        socket.to('unityServer').emit("intialize", {
+            data: "test package from server cutom unityServer room"
+            //normally add data here.
         });
+
+        socket.on('spawn-ship', (shipRequest) => {
+            this.spawnShip(shipRequest, socket);
+        });
+    }
+
+    initializeServerSocket(socket)
+    {
+        this.socket = socket;
     }
 
     registerWebClient(socket)
@@ -48,9 +58,10 @@ module.exports = class FHTaccom
 
     }
 
-    spawnShip(shipRequest)
+    spawnShip(shipRequest, socket)
     {
         this.ships.push(shipRequest);
-        this.socket.emit('spawn-ship', shipRequest);
+        synLogger.debug("ship message: " + JSON.stringify(shipRequest));
+        socket.broadcast.emit('spawn-ship', shipRequest);
     }
 }
