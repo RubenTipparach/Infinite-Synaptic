@@ -27,10 +27,15 @@ module.exports = class FHTaccom
         this.connections = connections;
         this.ships = [];
 
-        synLogger.debug('FH-TACCOM Initializing...');
+        this.currentIdCounter = 0;
 
+        synLogger.debug('FH-TACCOM Initializing...');
     }
 
+    /**
+     * 
+     * @param {any} socket
+     */
     initializeEvents(socket)
     {
         socket.to('unityServer').emit("intialize", {
@@ -38,8 +43,14 @@ module.exports = class FHTaccom
             //normally add data here.
         });
 
+        var myClass = this;
+
         socket.on('spawn-ship', (shipRequest) => {
-            this.spawnShip(shipRequest, socket);
+            shipRequest.shipId = myClass.currentIdCounter;
+            
+            myClass.spawnShip(shipRequest, socket);
+
+            myClass.currentIdCounter++;
         });
     }
 
@@ -60,8 +71,16 @@ module.exports = class FHTaccom
 
     spawnShip(shipRequest, socket)
     {
-        this.ships.push(shipRequest);
-        synLogger.debug("ship message: " + JSON.stringify(shipRequest));
-        socket.broadcast.emit('spawn-ship', shipRequest);
+        try
+        {
+            this.ships.push(shipRequest);
+            synLogger.debug("ship message: " + JSON.stringify(shipRequest));
+            socket.emit('spawn-ship', shipRequest);// kewl
+            socket.broadcast.emit('spawn-ship', shipRequest);// kewl
+        }
+        catch (e)
+        {
+            synLogger.error("ship message: " + JSON.stringify(shipRequest));
+        }
     }
 }

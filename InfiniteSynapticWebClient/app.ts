@@ -1,7 +1,7 @@
 ﻿/// <reference path="phaser.d.ts"/>
 // <reference path="socket.d.ts"/>
 import * as sio from 'socket.io-client';
-
+import * as BasicShip from "./BasicShip";
 
 let socket = sio.connect('localhost:3000');
 
@@ -14,7 +14,10 @@ class SimpleGame {
 
     socket: SocketIOClient.Socket;
 
+    ships: Array<BasicShip.BasicShip>;
+
     constructor() {
+
         this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content',
             {
                 preload: this.preload,
@@ -23,14 +26,21 @@ class SimpleGame {
                 update: this.update
             });
 
-
+        this.ships = [];
 
         socket.on('intialize', (data) => {
             console.log("recieved: " + data.data);
             
         });
 
+        socket.on('spawn-ship', (data) => {
+            console.log("server has spawned stuff  " + JSON.stringify(data));
 
+            let ship = this.game.add.sprite(data.position.x, data.position.y, 'R1-Fighter');
+            this.ships.push(new BasicShip.BasicShip(data.shipId, ship));
+
+            console.log("currently has: " + this.ships);
+        });
         //this.game.input.mouse.capture = true;
     }
 
@@ -59,7 +69,7 @@ class SimpleGame {
             let x = pointer.x - 12;
             let y = pointer.y - 22;
 
-            let ship = this.game.add.sprite(x, y, 'R1-Fighter');
+            //let ship = this.game.add.sprite(x, y, 'R1-Fighter'); let the server dictate.
 
             socket.emit('register-web-client', { serverId: "ruben's web client" });
             socket.emit('spawn-ship', {
@@ -68,6 +78,8 @@ class SimpleGame {
                     y: y
                 }
             });
+
+            
         }, this);
     }
 
@@ -76,18 +88,12 @@ class SimpleGame {
 
         let pointer = this.game.input.activePointer;
 
+        //leaving these events here, though I probably dont need them yet
         //this.game.debug.text("Left Button: " + pointer.leftButton.isDown, 300, 132);
         //this.game.debug.text("Middle Button: " + pointer.middleButton.isDown, 300, 196);
         //this.game.debug.text("Right Button: " + pointer.rightButton.isDown, 300, 260);
 
-        //this.game.debug.text("x: " + pointer.x, 300, 300);
-        //this.game.debug.text("y: " + pointer.y, 300, 315);
-
         this.spawner.position.set(pointer.x - 32, pointer.y - 32);
-
-        //if (pointer.leftButton.isDown)
-        //{
-        //}
     }
 
     update() {

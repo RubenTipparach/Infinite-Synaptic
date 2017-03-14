@@ -2,17 +2,26 @@
 /// <reference path="phaser.d.ts"/>
 // <reference path="socket.d.ts"/>
 var sio = require("socket.io-client");
+var BasicShip = require("./BasicShip");
 var socket = sio.connect('localhost:3000');
 var SimpleGame = (function () {
     function SimpleGame() {
+        var _this = this;
         this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'content', {
             preload: this.preload,
             create: this.create,
             render: this.render,
             update: this.update
         });
+        this.ships = [];
         socket.on('intialize', function (data) {
             console.log("recieved: " + data.data);
+        });
+        socket.on('spawn-ship', function (data) {
+            console.log("server has spawned stuff  " + JSON.stringify(data));
+            var ship = _this.game.add.sprite(data.position.x, data.position.y, 'R1-Fighter');
+            _this.ships.push(new BasicShip.BasicShip(data.shipId, ship));
+            console.log("currently has: " + _this.ships);
         });
         //this.game.input.mouse.capture = true;
     }
@@ -33,7 +42,7 @@ var SimpleGame = (function () {
             var pointer = _this.game.input.activePointer;
             var x = pointer.x - 12;
             var y = pointer.y - 22;
-            var ship = _this.game.add.sprite(x, y, 'R1-Fighter');
+            //let ship = this.game.add.sprite(x, y, 'R1-Fighter'); let the server dictate.
             socket.emit('register-web-client', { serverId: "ruben's web client" });
             socket.emit('spawn-ship', {
                 position: {
@@ -45,15 +54,11 @@ var SimpleGame = (function () {
     };
     SimpleGame.prototype.render = function () {
         var pointer = this.game.input.activePointer;
+        //leaving these events here, though I probably dont need them yet
         //this.game.debug.text("Left Button: " + pointer.leftButton.isDown, 300, 132);
         //this.game.debug.text("Middle Button: " + pointer.middleButton.isDown, 300, 196);
         //this.game.debug.text("Right Button: " + pointer.rightButton.isDown, 300, 260);
-        //this.game.debug.text("x: " + pointer.x, 300, 300);
-        //this.game.debug.text("y: " + pointer.y, 300, 315);
         this.spawner.position.set(pointer.x - 32, pointer.y - 32);
-        //if (pointer.leftButton.isDown)
-        //{
-        //}
     };
     SimpleGame.prototype.update = function () {
     };
