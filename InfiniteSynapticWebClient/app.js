@@ -24,6 +24,9 @@ var SimpleGame = (function () {
             console.log("currently has: " + _this.ships);
         });
         //this.game.input.mouse.capture = true;
+        socket.on('move-ship', function (data) {
+            console.log("Moved stuff  " + JSON.stringify(data));
+        });
     }
     SimpleGame.prototype.preload = function () {
         this.game.load.image('R1-Fighter', 'assets/images/R1-Fighter.png');

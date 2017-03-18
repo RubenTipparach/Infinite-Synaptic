@@ -45,12 +45,18 @@ module.exports = class FHTaccom
 
         var myClass = this;
 
+        //comes from the web client
         socket.on('spawn-ship', (shipRequest) => {
             shipRequest.shipId = myClass.currentIdCounter;
             
             myClass.spawnShip(shipRequest, socket);
 
             myClass.currentIdCounter++;
+        });
+
+        // comes from unity server
+        socket.on('move-ship', (shipPosition) => {
+
         });
     }
 
@@ -67,6 +73,19 @@ module.exports = class FHTaccom
     registerWebUser(socket)
     {
 
+    }
+
+    moveShip(shipPosition, socket)
+    {
+        try {
+            this.ships.push(shipRequest);
+            synLogger.debug("ship message: " + JSON.stringify(shipPosition));
+            // socket.emit('spawn-ship', shipPosition);// kewl
+            socket.broadcast.emit('spawn-ship', shipRequest);// kewl
+        }
+        catch (e) {
+            synLogger.error("ship message: " + JSON.stringify(shipRequest));
+        }
     }
 
     spawnShip(shipRequest, socket)

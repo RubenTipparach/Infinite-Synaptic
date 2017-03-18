@@ -42,6 +42,10 @@ class SimpleGame {
             console.log("currently has: " + this.ships);
         });
         //this.game.input.mouse.capture = true;
+
+        socket.on('move-ship', (data) => {
+            console.log("Moved stuff  " + JSON.stringify(data));
+        });
     }
 
 
