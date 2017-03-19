@@ -47,9 +47,9 @@ module.exports = (io, game) => {
 
             // sends a message to the client.
             socket.emit("intialize", {
-                data: "test package from server"
-                //normally add data here.
-            });
+                data: "test package from server",
+               });
+
 
             socket.on('register-unity-server', (uServer) => {
                 // should only allow one, or will spawn instances of socket.io
@@ -63,6 +63,7 @@ module.exports = (io, game) => {
 
             socket.on('register-web-client', (wClient) => {
                 registerConnection(socket, wClient, 'webClients');
+                unityGame.registerWebClient(socket);
             });
 
             // disconnection procedure.

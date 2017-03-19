@@ -15,17 +15,18 @@ var SimpleGame = (function () {
         });
         this.ships = [];
         socket.on('intialize', function (data) {
-            console.log("recieved: " + data.data);
+            console.log("recieved stuff: " + JSON.stringify(data));
         });
         socket.on('spawn-ship', function (data) {
             console.log("server has spawned stuff  " + JSON.stringify(data));
             var ship = _this.game.add.sprite(data.position.x, data.position.y, 'R1-Fighter');
-            _this.ships.push(new BasicShip.BasicShip(data.shipId, ship));
+            _this.ships['ship' + data.shipId] = (new BasicShip.BasicShip(data.shipId, ship));
             console.log("currently has: " + _this.ships);
         });
         //this.game.input.mouse.capture = true;
         socket.on('move-ship', function (data) {
             console.log("Moved stuff  " + JSON.stringify(data));
+            _this.ships['ship' + data.shipId].ship.position.set(data.x, data.y);
         });
     }
     SimpleGame.prototype.preload = function () {

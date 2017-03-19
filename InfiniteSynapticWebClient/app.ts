@@ -29,7 +29,7 @@ class SimpleGame {
         this.ships = [];
 
         socket.on('intialize', (data) => {
-            console.log("recieved: " + data.data);
+            console.log("recieved stuff: " + JSON.stringify(data));
             
         });
 
@@ -37,7 +37,7 @@ class SimpleGame {
             console.log("server has spawned stuff  " + JSON.stringify(data));
 
             let ship = this.game.add.sprite(data.position.x, data.position.y, 'R1-Fighter');
-            this.ships.push(new BasicShip.BasicShip(data.shipId, ship));
+            this.ships['ship' + data.shipId] = (new BasicShip.BasicShip(data.shipId, ship));
 
             console.log("currently has: " + this.ships);
         });
@@ -45,6 +45,7 @@ class SimpleGame {
 
         socket.on('move-ship', (data) => {
             console.log("Moved stuff  " + JSON.stringify(data));
+            this.ships['ship' + data.shipId].ship.position.set(data.x, data.y);
         });
     }
 

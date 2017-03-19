@@ -39,7 +39,7 @@ module.exports = class FHTaccom
     initializeEvents(socket)
     {
         socket.to('unityServer').emit("intialize", {
-            data: "test package from server cutom unityServer room"
+            data: "test package from server custom unityServer room"
             //normally add data here.
         });
 
@@ -56,7 +56,15 @@ module.exports = class FHTaccom
 
         // comes from unity server
         socket.on('move-ship', (shipPosition) => {
+            try {
+                synLogger.debug("move-ship: " + JSON.stringify(shipPosition));
+                socket.broadcast.emit('move-ship', shipPosition);
+                //socket.emit('move-ship', shipRequest);
 
+            }
+            catch (e) {
+                synLogger.error("ship message: " + JSON.stringify(shipRequest));
+            }
         });
     }
 
@@ -67,7 +75,10 @@ module.exports = class FHTaccom
 
     registerWebClient(socket)
     {
-
+        synLogger.debug(" registered web client ");
+        //socket.emit('move-ship', (shipPosition) => {
+        //    socket.broadcast.emit('move-ship', shipPosition);
+        //});
     }
 
     registerWebUser(socket)
@@ -81,7 +92,7 @@ module.exports = class FHTaccom
             this.ships.push(shipRequest);
             synLogger.debug("ship message: " + JSON.stringify(shipPosition));
             // socket.emit('spawn-ship', shipPosition);// kewl
-            socket.broadcast.emit('spawn-ship', shipRequest);// kewl
+            //socket.broadcast.emit('spawn-ship', shipRequest);// kewl
         }
         catch (e) {
             synLogger.error("ship message: " + JSON.stringify(shipRequest));
@@ -94,8 +105,8 @@ module.exports = class FHTaccom
         {
             this.ships.push(shipRequest);
             synLogger.debug("ship message: " + JSON.stringify(shipRequest));
-            socket.emit('spawn-ship', shipRequest);// kewl
-            socket.broadcast.emit('spawn-ship', shipRequest);// kewl
+            socket.emit('spawn-ship', shipRequest);
+            socket.broadcast.emit('spawn-ship', shipRequest);
         }
         catch (e)
         {
