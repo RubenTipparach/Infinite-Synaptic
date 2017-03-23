@@ -135,13 +135,10 @@ feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0]
 
 opt = tf.train.AdagradOptimizer(learning_rate=0.1)
 
-classifier = learn.DNNClassifier(
-     optimizer=opt,
-     model_dir= model_dir,
-     hidden_units=[20, 10, 5],
-     n_classes=num_classes,
-     feature_columns=feature_columns)
 
+estimator  = learn.DNNRegressor(
+    feature_columns = feature_columns,
+    hidden_units=[1024, 512, 256])
 
 validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
     x_test,
@@ -151,10 +148,9 @@ validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
     early_stopping_metric_minimize=True,
     early_stopping_rounds=50)
 
-classifier.fit(x_train, y_train,monitors=[validation_monitor],steps=10000)
 
 ###############################################
-
+'''
 pred = list(classifier.predict(x_test, as_iterable=True))
 score = metrics.accuracy_score(y_test, pred)
 print("Accuarcy before save: {}".format(score))
@@ -171,7 +167,7 @@ plt.show()
 pred = list(classifier.predict(x_test, as_iterable=True))
 score = metrics.accuracy_score(y_test, pred)
 print("Accuarcy before save: {}".format(score))
-
+'''
 ###############################################
 
 tf.logging.set_verbosity(tf.logging.ERROR)
@@ -179,7 +175,7 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 np.set_printoptions(precision=4)
 np.set_printoptions(suppress=True)
 
-pred = list(classifier.predict_proba(x_test, as_iterable=True))
+#pred = list(classifier.predict_proba(x_test, as_iterable=True))
 
 print("As percent probability")
 print(pred[0]*100)
@@ -215,6 +211,8 @@ for train, test in kf.split(x):
     feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0])]
 
     opt = tf.train.AdagradOptimizer(learning_rate=0.1)
+    
+    '''
     classifier = learn.DNNClassifier(
          optimizer=opt,
          model_dir= model_dir,
@@ -229,11 +227,12 @@ for train, test in kf.split(x):
         early_stopping_metric="loss",
         early_stopping_metric_minimize=True,
         early_stopping_rounds=50)
-
+    '''
+    
     classifier.fit(x, y, steps=1000)
 
 
-    pred = list(classifier.predict(x_test, as_iterable=True))
+    #pred = list(classifier.predict(x_test, as_iterable=True))
 
     all_y_test.append(y_test)
     all_y_pred.append(pred)
