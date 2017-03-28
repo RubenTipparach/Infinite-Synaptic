@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Created on Thu Mar  9 00:42:21 2017
 
 @author: Ruben
 """
-
-
 from sklearn import preprocessing
 
 import os
@@ -84,6 +81,20 @@ def plot_confusion_matrix(cm, names, title='Confusion matrix', cmap=plt.cm.Blues
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
+# Summary:
+#   Plots a comparison graph.
+# Parameters:
+#   pred - The network's estmation
+#   y - The actual output
+def chart_regression(pred,y):
+    t = pd.DataFrame({'pred' : pred, 'y' : y_test.flatten()})
+    t.sort_values(by=['y'],inplace=True)
+    a = plt.plot(t['y'].tolist(),label='expected')
+    b = plt.plot(t['pred'].tolist(),label='prediction')
+    plt.ylabel('output')
+    plt.legend()
+    plt.show()
+    
 #options
 tf.logging.set_verbosity(tf.logging.ERROR)
 pd.options.display.encoding = 'utf-8'
@@ -136,9 +147,12 @@ feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0]
 opt = tf.train.AdagradOptimizer(learning_rate=0.1)
 
 
-estimator  = learn.DNNRegressor(
-    feature_columns = feature_columns,
-    hidden_units=[1024, 512, 256])
+regressor = learn.DNNRegressor(
+    model_dir= model_dir,
+    optimizer=opt,
+    config=tf.contrib.learn.RunConfig(save_checkpoints_secs=1),
+    feature_columns=feature_columns,
+    hidden_units=[50,25,10])
 
 validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
     x_test,
@@ -150,43 +164,26 @@ validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
 
 
 ###############################################
-'''
-pred = list(classifier.predict(x_test, as_iterable=True))
-score = metrics.accuracy_score(y_test, pred)
-print("Accuarcy before save: {}".format(score))
 
-cm = confusion_matrix(y_test, pred)
-np.set_printoptions(precision=2)
-print('Confusion matrix')
-print(cm)
-plt.figure()
-plot_confusion_matrix(cm, medValue)
-plt.show()
-
-
-pred = list(classifier.predict(x_test, as_iterable=True))
-score = metrics.accuracy_score(y_test, pred)
-print("Accuarcy before save: {}".format(score))
-'''
-###############################################
-
-tf.logging.set_verbosity(tf.logging.ERROR)
-
-np.set_printoptions(precision=4)
-np.set_printoptions(suppress=True)
-
+#tf.logging.set_verbosity(tf.logging.ERROR)
+#np.set_printoptions(precision=4)
+#np.set_printoptions(suppress=True)
 #pred = list(classifier.predict_proba(x_test, as_iterable=True))
 
-print("As percent probability")
-print(pred[0]*100)
+regressor.fit(x_train, y_train,monitors=[validation_monitor],batch_size=64,steps=10000)
 
-print("Numpy array of predictions")
-display(pred[0:5])
+pred = list(regressor.predict(x_test, as_iterable=True))
 
-score = metrics.log_loss(y_test, pred)
-print("Log loss score: {}".format(score))
+mse = metrics.mean_squared_error(pred,y_test)
+print("Score (MSE): {}".format(mse))
+score = np.sqrt(mse)
+print("Score (RMSE): {}".format(score))
 
-# K-Fold Section
+chart_regression(pred,y_test)
+
+'''
+
+####################### K-Fold Section #######################
 
 kf = KFold(5)
 
@@ -195,7 +192,9 @@ all_y_pred = []
 fold = 0
 
 shutil.rmtree('tmp', ignore_errors=True)
+'''
 
+'''
 # For each fold, run the test set and evaluate it's accuracy.
 for train, test in kf.split(x):
     fold+=1
@@ -212,7 +211,7 @@ for train, test in kf.split(x):
 
     opt = tf.train.AdagradOptimizer(learning_rate=0.1)
     
-    '''
+
     classifier = learn.DNNClassifier(
          optimizer=opt,
          model_dir= model_dir,
@@ -227,7 +226,7 @@ for train, test in kf.split(x):
         early_stopping_metric="loss",
         early_stopping_metric_minimize=True,
         early_stopping_rounds=50)
-    '''
+
     
     classifier.fit(x, y, steps=1000)
 
@@ -246,3 +245,5 @@ all_y_pred = np.concatenate(all_y_pred)
 score = np.sqrt(metrics.accuracy_score(all_y_pred,all_y_test))
 print()
 print("Cross-validated score (Accuracy): {}".format(score))
+'''
+
