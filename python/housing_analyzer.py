@@ -87,7 +87,7 @@ def plot_confusion_matrix(cm, names, title='Confusion matrix', cmap=plt.cm.Blues
 #   pred - The network's estmation
 #   y - The actual output
 def chart_regression(pred,y):
-    t = pd.DataFrame({'pred' : pred, 'y' : y_test.flatten()})
+    t = pd.DataFrame({'pred' : pred, 'y' : y.flatten()})  
     t.sort_values(by=['y'],inplace=True)
     a = plt.plot(t['y'].tolist(),label='expected')
     b = plt.plot(t['pred'].tolist(),label='prediction')
@@ -138,14 +138,15 @@ x, y = to_xy(df,'medv')
 
 # The standard training set.
 x_train, x_test, y_train, y_test = train_test_split(
-    x, y, test_size=0.25)#, random_state=45) #<---- Can modify the seed here whenever
+    x, y, test_size=0.20)#, random_state=45) #<---- Can modify the seed here whenever
 
 model_dir = 'tmp/housing'
 
 feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0])]
 
+'''
+###################### Early testing section #########################
 opt = tf.train.AdagradOptimizer(learning_rate=0.1)
-
 
 regressor = learn.DNNRegressor(
     model_dir= model_dir,
@@ -157,13 +158,11 @@ regressor = learn.DNNRegressor(
 validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
     x_test,
     y_test,
-    every_n_steps=500,
+    every_n_steps=50,
     early_stopping_metric="loss",
     early_stopping_metric_minimize=True,
     early_stopping_rounds=50)
 
-
-###############################################
 
 #tf.logging.set_verbosity(tf.logging.ERROR)
 #np.set_printoptions(precision=4)
@@ -180,70 +179,70 @@ score = np.sqrt(mse)
 print("Score (RMSE): {}".format(score))
 
 chart_regression(pred,y_test)
-
+#######################################################################
 '''
-
 ####################### K-Fold Section #######################
 
-kf = KFold(5)
+#randomize set
+'''np.random.seed()#42)
+df = df.reindex(np.random.permutation(df.index))
+df.reset_index(inplace=True, drop=True)
+'''
 
-all_y_test = []
-all_y_pred = []
+kf = KFold(5)
+    
+all_y = []
+all_pred = []
 fold = 0
 
+#remove stuff
 shutil.rmtree('tmp', ignore_errors=True)
-'''
 
-'''
-# For each fold, run the test set and evaluate it's accuracy.
 for train, test in kf.split(x):
     fold+=1
-    print("Fold #{}".format(fold))
 
     x_train = x[train]
     y_train = y[train]
     x_test = x[test]
     y_test = y[test]
-
+    
     model_dir = 'tmp/housing' + str(fold)
 
     feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0])]
-
-    opt = tf.train.AdagradOptimizer(learning_rate=0.1)
+    regressor = learn.DNNRegressor(
+        model_dir= model_dir,
+        config=tf.contrib.learn.RunConfig(save_checkpoints_secs=1),
+        feature_columns=feature_columns,
+        hidden_units=[20, 10, 5])
     
-
-    classifier = learn.DNNClassifier(
-         optimizer=opt,
-         model_dir= model_dir,
-         hidden_units=[20, 10, 5],
-         n_classes=num_classes,
-         feature_columns=feature_columns)
-
     validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
         x_test,
         y_test,
-        every_n_steps=50,
+        every_n_steps=100,
         early_stopping_metric="loss",
         early_stopping_metric_minimize=True,
-        early_stopping_rounds=50)
+        early_stopping_rounds=100)
+        
+    regressor.fit(x_train, y_train,monitors=[validation_monitor],batch_size=32,steps=20000)
 
+    pred = list(regressor.predict(x_test, as_iterable=True))
     
-    classifier.fit(x, y, steps=1000)
+    all_y.append(y_test)
+    all_pred.append(pred)        
 
-
-    #pred = list(classifier.predict(x_test, as_iterable=True))
-
-    all_y_test.append(y_test)
-    all_y_pred.append(pred)
-    score = np.sqrt(metrics.accuracy_score(pred,y_test))
-    print("Fold score (Accuracy): {}".format(score))
+    score = np.sqrt(metrics.mean_squared_error(pred,y_test))
+    print("Fold #{}".format(fold))
+    print("Fold score (RMSE): {}".format(score))
 
 
 
-all_y_test = np.concatenate(all_y_test)
-all_y_pred = np.concatenate(all_y_pred)
-score = np.sqrt(metrics.accuracy_score(all_y_pred,all_y_test))
-print()
-print("Cross-validated score (Accuracy): {}".format(score))
-'''
+all_y = np.concatenate(all_y)
+all_pred = np.concatenate(all_pred)
+score = np.sqrt(metrics.mean_squared_error(all_pred,all_y))
+print("Final, out of sample score (RMSE): {}".format(score))   
+
+#print(len(all_y.flatten()))
+#print(len(all_pred))
+
+chart_regression(all_pred, all_y)
 
