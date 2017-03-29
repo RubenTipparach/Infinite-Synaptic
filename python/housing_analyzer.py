@@ -64,6 +64,24 @@ def to_xy(df,target):
     else:
         return df.as_matrix(result).astype(np.float32),df.as_matrix([target]).astype(np.float32)
 
+def to_xy_selectFeature(df,target, fVect):
+    result = []
+    print('using feature vector: ')
+    for x in df.columns:
+        
+        if x != target and x in fVect:
+            print(x)
+            result.append(x)
+
+    target_type = df[target].dtypes
+    target_type = target_type[0] if hasattr(target_type, '__iter__') else target_type
+
+    if target_type in (np.int64, np.int32):
+        return df.as_matrix(result).astype(np.float32),df.as_matrix([target]).astype(np.int32)
+    else:
+        return df.as_matrix(result).astype(np.float32),df.as_matrix([target]).astype(np.float32)
+
+        
 # Summary:
 #   Plots a confusing confusion matrix.
 # Parameters:
@@ -134,6 +152,15 @@ medValue = encode_text_index(df,"medv")
 num_classes = len(medValue)
 
 x, y = to_xy(df,'medv')
+
+#feature vector class
+#x, y = to_xy_selectFeature(df,'medv', ['crim', 'tax', 'dis', 'b', 'rad'])
+#x, y = to_xy_selectFeature(df,'medv', ['rm', 'age', 'indus', 'zb', 'nox'])
+#x, y = to_xy_selectFeature(df,'medv', ['lstat', 'ptratio', 'age', 'dis', 'nox'])
+#x, y = to_xy_selectFeature(df,'medv', ['tax', 'crim', 'age', 'rm', 'nox'])
+#x, y = to_xy_selectFeature(df,'medv', ['b', 'indus', 'age', 'zb', 'nox'])
+
+
 
 
 # The standard training set.
@@ -207,13 +234,26 @@ for train, test in kf.split(x):
     y_test = y[test]
     
     model_dir = 'tmp/housing' + str(fold)
-
+    
     feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0])]
+                       
+    #Optimizers
+    #pt = tf.train.GradientDescentOptimizer(learning_rate=0.00001)
+    #opt = tf.train.MomentumOptimizer(learning_rate=0.00001,momentum=0.9)
+    #opt = tf.train.FtrlOptimizer(learning_rate = 0.00001, learning_rate_power=-0.001)
+    #opt = tf.train.AdamOptimizer(learning_rate = 0.01)
+    # These two don't seem to work...
+    #opt = tf.train.AdagradOptimizer(learning_rate = 0.00001)
+    #opt = tf.train.AdadeltaOptimizer(learning_rate = 0.00001)
+    
+    
+    #The network structure
     regressor = learn.DNNRegressor(
         model_dir= model_dir,
+        dropout = 0.2,      
         config=tf.contrib.learn.RunConfig(save_checkpoints_secs=1),
         feature_columns=feature_columns,
-        hidden_units=[20, 10, 5])
+        hidden_units=[64, 32, 16, 8])
     
     validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
         x_test,
@@ -224,9 +264,8 @@ for train, test in kf.split(x):
         early_stopping_rounds=100)
         
     regressor.fit(x_train, y_train,monitors=[validation_monitor],batch_size=32,steps=20000)
-
     pred = list(regressor.predict(x_test, as_iterable=True))
-    
+
     all_y.append(y_test)
     all_pred.append(pred)        
 
