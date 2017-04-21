@@ -161,8 +161,6 @@ x, y = to_xy(df,'medv')
 #x, y = to_xy_selectFeature(df,'medv', ['b', 'indus', 'age', 'zb', 'nox'])
 
 
-
-
 # The standard training set.
 x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.20)#, random_state=45) #<---- Can modify the seed here whenever
@@ -248,12 +246,14 @@ for train, test in kf.split(x):
     
     
     #The network structure
-    regressor = learn.DNNRegressor(
+    '''regressor = learn.DNNRegressor(
         model_dir= model_dir,
         dropout = 0.2,      
         config=tf.contrib.learn.RunConfig(save_checkpoints_secs=1),
         feature_columns=feature_columns,
-        hidden_units=[64, 32, 16, 8])
+        hidden_units=[64, 32, 16, 8])'''
+    
+    regressor = learn.LinearRegressor(feature_columns=feature_columns)
     
     validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
         x_test,
