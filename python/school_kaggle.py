@@ -151,7 +151,7 @@ opt = tf.train.AdagradOptimizer(learning_rate=0.01)
 classifier = learn.DNNClassifier(
      optimizer=opt,
      model_dir= model_dir,
-     hidden_units=[200, 100, 50],
+     hidden_units=[400,  400, 200],
      n_classes=num_classes,
      feature_columns=feature_columns)
 
@@ -164,7 +164,7 @@ validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
     early_stopping_metric_minimize=True,
     early_stopping_rounds=50)
 
-classifier.fit(x_train, y_train,monitors=[validation_monitor],steps=30000)
+classifier.fit(x_train, y_train,monitors=[validation_monitor],steps=20000)
 
 ###############################################
 
@@ -231,7 +231,7 @@ for train, test in kf.split(x):
     classifier = learn.DNNClassifier(
          optimizer=opt,
          model_dir= model_dir,
-         hidden_units=[200, 100, 50],
+         hidden_units=[400,  400, 200],
          n_classes=num_classes,
          feature_columns=feature_columns)
 
@@ -243,7 +243,7 @@ for train, test in kf.split(x):
         early_stopping_metric_minimize=True,
         early_stopping_rounds=50)
 
-    classifier.fit(x_train, y_train, monitors=[validation_monitor],steps=30000)
+    classifier.fit(x_train, y_train, monitors=[validation_monitor],steps=20000)
 
 
     pred = list(classifier.predict(x_test, as_iterable=True))
@@ -278,13 +278,13 @@ encode_numeric_zscore(df,'A3')
 encode_numeric_zscore(df,'A4')
 
 encode_numeric_zscore(df,'A5')
-#encode_numeric_zscore(df,'A6')
+encode_numeric_zscore(df,'A6')
 encode_numeric_zscore(df,'A7')
 encode_numeric_zscore(df,'A8')
 
 encode_numeric_zscore(df,'A9')
 encode_numeric_zscore(df,'A10')
-#encode_numeric_zscore(df,'A11')
+encode_numeric_zscore(df,'A11')
 encode_numeric_zscore(df,'A12')
 
 encode_numeric_zscore(df,'A13')
@@ -293,24 +293,13 @@ encode_numeric_zscore(df,'A15')
 encode_numeric_zscore(df,'A16')
 encode_numeric_zscore(df,'A17')
 encode_numeric_zscore(df,'A18')
-#encode_numeric_zscore(df,'A19')
+encode_numeric_zscore(df,'A19')
 
 
 x = to_x(df)
 
 model_dir = 'tmp/kaggle' + str(fold)
 
-feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0])]
-
-opt = tf.train.AdagradOptimizer(learning_rate=0.1)
-classifier = learn.DNNClassifier(
-     optimizer=opt,
-     model_dir= model_dir,
-     hidden_units=[100, 50, 20],
-     n_classes=num_classes,
-     feature_columns=feature_columns)
-
-classifier.fit(x, y, steps=1000)
 print('ID,Outcome');
 
 i = 1;
