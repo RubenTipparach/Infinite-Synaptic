@@ -97,7 +97,7 @@ def plot_confusion_matrix(cm, names, title='Confusion matrix', cmap=plt.cm.Blues
     plt.xlabel('Predicted label')
 
 #options
-tf.logging.set_verbosity(tf.logging.ERROR)
+tf.logging.set_verbosity(tf.logging.INFO)
 pd.options.display.encoding = 'utf-8'
 
 
@@ -137,10 +137,11 @@ num_classes = len(classOfWine)
 
 x, y = to_xy(df,'Outcome')
 
+shutil.rmtree('tmp', ignore_errors=True)
 
 # The standard training set.
 x_train, x_test, y_train, y_test = train_test_split(
-    x, y, test_size=0.25)#, random_state=45) #<---- Can modify the seed here whenever
+    x, y, test_size=0.25, random_state=45) #<---- Can modify the seed here whenever
 
 model_dir = 'tmp/kaggle'
 
@@ -148,10 +149,13 @@ feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0]
 
 opt = tf.train.AdagradOptimizer(learning_rate=0.01)
 
+# 400 300 200, or 400 200 100 may be best.
+
 classifier = learn.DNNClassifier(
      optimizer=opt,
      model_dir= model_dir,
-     hidden_units=[400,  400, 200],
+     dropout = 0.02,
+     hidden_units=[200, 100, 40],
      n_classes=num_classes,
      feature_columns=feature_columns)
 
@@ -181,9 +185,6 @@ plot_confusion_matrix(cm, classOfWine)
 plt.show()
 
 
-pred = list(classifier.predict(x_test, as_iterable=True))
-score = metrics.accuracy_score(y_test, pred)
-print("Accuarcy before save: {}".format(score))
 
 ###############################################
 
@@ -192,6 +193,7 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 np.set_printoptions(precision=4)
 np.set_printoptions(suppress=True)
 
+
 pred = list(classifier.predict_proba(x_test, as_iterable=True))
 
 print("As percent probability")
@@ -199,6 +201,7 @@ print(pred[0]*100)
 
 print("Numpy array of predictions")
 display(pred[0:5])
+
 
 score = metrics.log_loss(y_test, pred)
 print("Log loss score: {}".format(score))
@@ -211,8 +214,7 @@ all_y_test = []
 all_y_pred = []
 fold = 0
 
-#shutil.rmtree('tmp', ignore_errors=True)
-
+'''
 for train, test in kf.split(x):
     fold+=1
     print("Fold #{}".format(fold))
@@ -226,30 +228,39 @@ for train, test in kf.split(x):
 
     feature_columns = [tf.contrib.layers.real_valued_column("", dimension=x.shape[0])]
 
-    opt = tf.train.AdagradOptimizer(learning_rate=0.01)
+    opt = tf.train.AdagradOptimizer(learning_rate=0.3,initial_accumulator_value=0.1)
+    
+    # 400 300 200, or 400 200 100 may be best.
     
     classifier = learn.DNNClassifier(
          optimizer=opt,
          model_dir= model_dir,
-         hidden_units=[400,  400, 200],
+         dropout = 0.1,
+         hidden_units=[120, 60, 40],
          n_classes=num_classes,
          feature_columns=feature_columns)
-
+    
+    
     validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
         x_test,
         y_test,
-        every_n_steps=50,
+        every_n_steps=500,
         early_stopping_metric="loss",
         early_stopping_metric_minimize=True,
         early_stopping_rounds=50)
-
-    classifier.fit(x_train, y_train, monitors=[validation_monitor],steps=20000)
+    
+    classifier.fit(x_train, y_train,monitors=[validation_monitor],steps=5000)
 
 
     pred = list(classifier.predict(x_test, as_iterable=True))
 
     all_y_test.append(y_test)
     all_y_pred.append(pred)
+    
+    
+    score = metrics.log_loss(y_test, pred)
+    print("Log loss score: {}".format(score))
+
     score = np.sqrt(metrics.accuracy_score(pred,y_test))
     print("Fold score (Accuracy): {}".format(score))
 
@@ -260,8 +271,7 @@ score = np.sqrt(metrics.accuracy_score(all_y_pred,all_y_test))
 print()
 print("Cross-validated score (Accuracy): {}".format(score))
 
-
-
+'''
 ############ generate data ############
 
 filename_read = os.path.join(path,"test.csv")
@@ -298,7 +308,7 @@ encode_numeric_zscore(df,'A19')
 
 x = to_x(df)
 
-model_dir = 'tmp/kaggle' + str(fold)
+model_dir = 'tmp/kaggle'
 
 print('ID,Outcome');
 
@@ -308,3 +318,12 @@ plist = list(classifier.predict(x, as_iterable=True))
 for p in plist:
     print(str(i) + ',' + str(p))
     i += 1
+    
+import winsound         # for sound  
+import time             # for sleep
+
+#winsound.Beep(440, 250) # frequency, duration
+#time.sleep(0.25)        # in seconds (0.25 is 250ms)
+
+#winsound.Beep(600, 250)
+#time.sleep(0.25)
